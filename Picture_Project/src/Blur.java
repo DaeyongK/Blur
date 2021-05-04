@@ -1,4 +1,4 @@
 
 public class Blur {
-	//Suraj 
+	//Suraj, but Daeyong is better
 }
