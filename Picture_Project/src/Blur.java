@@ -1,4 +1,4 @@
 
 public class Blur {
-	//Suraj, but Daeyong is better <- thats lie
+	//Suraj, but Daeyong is better <- thats lie <- Suraj is salty
 }
