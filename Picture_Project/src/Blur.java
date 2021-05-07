@@ -11,6 +11,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	private int col;
 	private int depth;
 	private boolean main;
+	private int[] coords = {-1,-1,-1,-1};
 	public Blur(){
 		super(new Picture(700,600));
 		displayMain();
@@ -31,30 +32,17 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		// setImage() changes the title each time it's called
 		setTitle("All About Me");
 	}
-	private void displayPhoto(int row, int col, int depth){
-//		main = false;
-//		Picture disp = new Picture(700,600);
-//		disp.setAllPixelsToAColor(Color.black);
-//		Graphics2D graphics = disp.createGraphics();
-//		//System.out.println("row:" + row + " col:" + col + " depth:" + depth);
-//		Picture photo = new Picture(path + images[row][col][depth]);
-//		int x = (600 - photo.getWidth())/2;
-//		int y = (600 - photo.getHeight())/2;
-//		graphics.drawImage(photo.getBufferedImage(), x, y, this);
-//		Picture arrows = new Picture(path + "arrows.png");
-//		Picture left = new Picture(path + "leftOnly.png");
-//		Picture right = new Picture(path + "rightOnly.png");
-//		if(depth == 1)
-//			graphics.drawImage(right.getBufferedImage(),0,600,this);
-//		else if(depth == images[row][col].length-1)
-//			graphics.drawImage(left.getBufferedImage(),0,600,this);
-//		else
-//			graphics.drawImage(arrows.getBufferedImage(),0,600,this);
-//		setImage(disp);
-//		setTitle("All About Me");
-	}
 
 	public void mouseClickedAction(DigitalPicture pict, Pixel pix) {
+		int y = pix.getY();
+		int x = pix.getX();
+		if(coords[0]==-1) {
+			coords[0] = x;
+			coords[1] = y;
+		} else if (coords[2]==-1){
+			coords[2] = x;
+			coords[3] = y;
+		} 
 //		if(main && pix.getY()<600){
 //			row = (int) pix.getY()/200;
 //			col = (int) pix.getX()/200;
