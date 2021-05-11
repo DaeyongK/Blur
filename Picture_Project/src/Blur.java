@@ -3,23 +3,14 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.lang.Math;
 
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
-	private int row;
-	private int col;
-	private int depth;
-	private boolean main;
 	private int[] coords = {-1,-1,-1,-1};
-	private Picture pict = new Picture("slideshow/Chalice.png");
+	private Picture pict = new Picture("slideshow/sumi.png");
 	public Blur(){
 		super(new Picture(700,600));
 		displayMain();
-		row = 0; 
-		col = 0;
-		depth = 0;
 	}
 	private void displayMain() {
 		Picture disp = new Picture(700, 600);
@@ -91,10 +82,10 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		}
 		for(int i = coords[up]; i < coords[down]; i++) {
 			for(int j = coords[left]; j < coords[right]; j++) {
-				Pixel pix = new Pixel(pict, col, row);
-				pix.setColor(blurredPortion[i-coords[up]][j-coords[left]]);
+				pict.getPixel(j, i).setColor(blurredPortion[i-coords[up]][j-coords[left]]);
 			}
 		}
+		setImage(pict);
 	}
 	public void mouseClickedAction(DigitalPicture pict, Pixel pix) {
 		int y = pix.getY();
