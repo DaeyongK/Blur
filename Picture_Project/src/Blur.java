@@ -46,27 +46,26 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 			right = 0;
 			left = 2;
 		}
-		double[][] weights = new double[7][7];
+		double[][] weights = new double[kernelIndex][kernelIndex];
 		Color[][] blurredPortion = new Color[coords[down]-coords[up]+1][coords[right]-coords[left]+1];
 		for(int i = coords[up]; i < coords[down]; i++) {
 			for(int j = coords[left]; j < coords[right]; j++) {
-				for(int row = 0; row < 7; row++) {
-					for(int col = 0; col < 7; col++) {
-						double mult = (1/(2*Math.PI*Math.pow(3,2))*Math.exp(-(Math.pow(col - 7/2, 2) + Math.pow(row-7/2, 2))/(2*Math.pow(3, 2))));
+				for(int row = 0; row < kernelIndex; row++) {
+					for(int col = 0; col < kernelIndex; col++) {
+						double mult = (1/(2*Math.PI*Math.pow(10,2))*Math.exp(-(Math.pow(col-kernelIndex/2, 2) + Math.pow(row-kernelIndex/2, 2))/(2*Math.pow(10, 2))));
 						weights[row][col] = mult;
 						sum+=mult;
-
 					}
 				}
-				for(int row = 0; row < 7; row++) {
-					for(int col = 0; col < 7; col++) {
+				for(int row = 0; row < kernelIndex; row++) {
+					for(int col = 0; col < kernelIndex; col++) {
 						weights[row][col] /= sum;
 					}
 				}
-				for(int row = -3; row < 4; row++) {
-					for(int col = -3; col < 4; col++) {
+				for(int row = -(kernelIndex-1)/2; row < ((kernelIndex-1)/2)+1; row++) {
+					for(int col = -(kernelIndex-1)/2; col < ((kernelIndex-1)/2)+1; col++) {
 						Pixel pix = new Pixel(pict, j+col, i+row);
-						double weight = weights[row+3][col+3];
+						double weight = weights[row+(kernelIndex-1)/2][col+(kernelIndex-1)/2];
 						red+=(pix.getRed()*weight);
 						green+=(pix.getGreen()*weight);
 						blue+=(pix.getBlue()*weight);

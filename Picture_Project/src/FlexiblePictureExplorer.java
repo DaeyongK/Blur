@@ -32,7 +32,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   private int rowIndex = 0; 
   /** column index */
   private int colIndex = 0;
-  
+  public int kernelIndex = 7;
   private JFrame popup = null;
   
   // main GUI
@@ -58,6 +58,10 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   private JTextField colValue;
   /** text field to show row index */
   private JTextField rowValue;
+  private JLabel kernelLabel;
+  private JButton kernelPrevButton;
+  private JButton kernelNextButton;
+  private JTextField kernelValue;
   /** red value label */
   private JLabel rValue;
   /** green value label */
@@ -266,12 +270,15 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     colNextButton = new JButton(nextIcon);
     rowPrevButton = new JButton(prevIcon);
     rowNextButton = new JButton(nextIcon);
-    
+    kernelPrevButton = new JButton(prevIcon);
+    kernelNextButton = new JButton(nextIcon);
     // set the tool tip text
     colNextButton.setToolTipText("Click to go to the next column value");
     colPrevButton.setToolTipText("Click to go to the previous column value");
     rowNextButton.setToolTipText("Click to go to the next row value");
     rowPrevButton.setToolTipText("Click to go to the previous row value");
+    kernelNextButton.setToolTipText("Click to increase Kernel size");
+    kernelPrevButton.setToolTipText("Click to decrease Kernel size");
     
     // set the sizes of the buttons
     int prevWidth = prevIcon.getIconWidth() + 2;
@@ -284,6 +291,8 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     rowPrevButton.setPreferredSize(prevDimension);
     colNextButton.setPreferredSize(nextDimension);
     rowNextButton.setPreferredSize(nextDimension);
+    kernelNextButton.setPreferredSize(nextDimension);
+    kernelNextButton.setPreferredSize(nextDimension);
     
     // handle previous column button press
     colPrevButton.addActionListener(new ActionListener() {
@@ -324,6 +333,23 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colIndex,rowIndex);
       }
     });
+    
+    kernelPrevButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+          kernelIndex-=2;
+          if (kernelIndex < 3)
+            kernelIndex = 3;
+          displayPixelInformation(colIndex,rowIndex);
+        }
+     });
+    kernelNextButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+          kernelIndex+=2;
+          if (kernelIndex > 99)
+            kernelIndex = 99;
+          displayPixelInformation(colIndex,rowIndex);
+        }
+     });
   }
   
   /**
@@ -341,6 +367,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     // create the labels
     rowLabel = new JLabel("Row:");
     colLabel = new JLabel("Column:");
+    kernelLabel = new JLabel("Kernel Size:");
     
     // create the text fields
     colValue = new JTextField(Integer.toString(colIndex + numberBase),6);
@@ -355,7 +382,12 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colValue.getText(),rowValue.getText());
       }
     });
-    
+    kernelValue = new JTextField(Integer.toString(kernelIndex + numberBase),6);
+    kernelValue.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        displayPixelInformation(colValue.getText(),rowValue.getText());
+      }
+    });
     // set up the next and previous buttons
     setUpNextAndPreviousButtons();
     
@@ -376,6 +408,11 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     hBox.add(colPrevButton);
     hBox.add(colValue);
     hBox.add(colNextButton);
+    hBox.add(Box.createHorizontalStrut(10));
+    hBox.add(kernelLabel);
+    hBox.add(kernelPrevButton);
+    hBox.add(kernelValue);
+    hBox.add(kernelNextButton);
     locationPanel.add(hBox);
     hBox.add(Box.createHorizontalGlue());
     
@@ -628,6 +665,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     // notify the image display of the current x and y
     imageDisplay.setCurrentX((int) (colIndex * zoomFactor));
     imageDisplay.setCurrentY((int) (rowIndex * zoomFactor));
+    kernelValue.setText(Integer.toString(kernelIndex));
   }
   
   /**
