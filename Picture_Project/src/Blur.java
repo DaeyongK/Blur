@@ -9,7 +9,7 @@ import java.lang.Math;
 import java.util.Stack;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	private int[] coords = {-1,-1,-1,-1};
-	public static String thePicture = "slideshow/SumichanByeBye.jpg";
+	public static String thePicture = "slideshow/loveIsWar.png";
 	private Picture pict = new Picture(thePicture);
 	public static Stack<Picture> changes = new Stack<Picture>();
 	public static Stack<Picture> retractions = new Stack<Picture>();
