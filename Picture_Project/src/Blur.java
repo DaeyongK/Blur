@@ -2,18 +2,24 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.ImageObserver;
 import java.lang.Math;
-
+import java.util.Stack;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	private int[] coords = {-1,-1,-1,-1};
-	private Picture pict = new Picture("slideshow/sumi.png");
+	public static String thePicture = "slideshow/SumichanByeBye.jpg";
+	private Picture pict = new Picture(thePicture);
+	public static Stack<Picture> changes = new Stack<Picture>();
+	public static Stack<Picture> retractions = new Stack<Picture>();
 	public Blur(){
-		super(new Picture(700,600));
+		super(new Picture(1280,720));
+		changes.push(pict);
 		displayMain();
 	}
 	private void displayMain() {
-		Picture disp = new Picture(700, 600);
+		Picture disp = new Picture(1280,720);
 		Graphics2D graphics = disp.createGraphics();
 		graphics.setColor(Color.black);
 		graphics.setFont(new Font("Times", Font.BOLD, 26));
@@ -21,7 +27,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		graphics.drawImage(pict.getBufferedImage(), 0, 0, this);
 		setImage(disp);
 		// setImage() changes the title each time it's called
-		setTitle("All About Me");
+		setTitle("Blur Project");
 	}
 	public void gaussian_blur(int[] coords) {
 		int up = -1;
@@ -79,13 +85,17 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				sum=0;
 			}
 		}
+		
+		Picture newPict = new Picture(changes.peek());
 		for(int i = coords[up]; i < coords[down]; i++) {
 			for(int j = coords[left]; j < coords[right]; j++) {
-				pict.getPixel(j, i).setColor(blurredPortion[i-coords[up]][j-coords[left]]);
+				newPict.getPixel(j, i).setColor(blurredPortion[i-coords[up]][j-coords[left]]);
 			}
 		}
-		setImage(pict);
+		setImage(newPict);
+		changes.push(newPict);
 	}
+
 	public void mouseClickedAction(DigitalPicture pict, Pixel pix) {
 		int y = pix.getY();
 		int x = pix.getX();

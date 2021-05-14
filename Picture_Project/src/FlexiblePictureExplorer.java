@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.image.*;
 import javax.swing.border.*;
 import javax.swing.event.MouseInputAdapter;
-
 // Changes 4/4/14 SAG: Made class and mouse click event method abstract. Removed action
 // for mouse pressed because it generated two clicks. Also dismissed pop-up
 // when new popup comes.
@@ -33,6 +32,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   /** column index */
   private int colIndex = 0;
   public int kernelIndex = 7;
+  public int resetIndex = 99;
   private JFrame popup = null;
   
   // main GUI
@@ -62,6 +62,13 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   private JButton kernelPrevButton;
   private JButton kernelNextButton;
   private JTextField kernelValue;
+  private JButton resetButton;
+  private JLabel resetLabel;
+  private JButton redoButton;
+  private JButton undoButton;
+  private JLabel  redoLabel;
+  private JLabel undoLabel;
+  public static int undoRedoValue;
   /** red value label */
   private JLabel rValue;
   /** green value label */
@@ -265,13 +272,21 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
                                   "previous index");
     Icon nextIcon = new ImageIcon(DigitalPicture.class.getResource("rightArrow.gif"), 
                                   "next index");
-    // create the arrow buttons
+    Icon resetIcon = new ImageIcon("slideshow/resettwoNEW_27x27.png"); 
+    Icon undoIcon = new ImageIcon("slideshow/Undo_Icon_27x27.png"); 
+    Icon redoIcon = new ImageIcon("slideshow/redo_icon_27x27.png"); 
+    
+   
+    //create the arrow buttons
     colPrevButton = new JButton(prevIcon);
     colNextButton = new JButton(nextIcon);
     rowPrevButton = new JButton(prevIcon);
     rowNextButton = new JButton(nextIcon);
     kernelPrevButton = new JButton(prevIcon);
     kernelNextButton = new JButton(nextIcon);
+    resetButton = new JButton(resetIcon);
+    redoButton = new JButton(redoIcon);
+    undoButton = new JButton(undoIcon);
     // set the tool tip text
     colNextButton.setToolTipText("Click to go to the next column value");
     colPrevButton.setToolTipText("Click to go to the previous column value");
@@ -279,6 +294,9 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     rowPrevButton.setToolTipText("Click to go to the previous row value");
     kernelNextButton.setToolTipText("Click to increase Kernel size");
     kernelPrevButton.setToolTipText("Click to decrease Kernel size");
+    resetButton.setToolTipText("Click to reset to the Original Picture");
+    redoButton.setToolTipText("Click to redo your last action");
+    undoButton.setToolTipText("Click to undo your last action");
     
     // set the sizes of the buttons
     int prevWidth = prevIcon.getIconWidth() + 2;
@@ -293,7 +311,9 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     rowNextButton.setPreferredSize(nextDimension);
     kernelNextButton.setPreferredSize(nextDimension);
     kernelNextButton.setPreferredSize(nextDimension);
-    
+    resetButton.setPreferredSize(nextDimension);
+    redoButton.setPreferredSize(nextDimension);
+    undoButton.setPreferredSize(prevDimension);
     // handle previous column button press
     colPrevButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
@@ -333,7 +353,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colIndex,rowIndex);
       }
     });
-    
+    //kernelPrevButton button press
     kernelPrevButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
           kernelIndex-=2;
@@ -342,6 +362,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           displayPixelInformation(colIndex,rowIndex);
         }
      });
+  //kernelNextButton button press
     kernelNextButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
           kernelIndex+=2;
@@ -350,7 +371,37 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           displayPixelInformation(colIndex,rowIndex);
         }
      });
+  //resetButton button press
+    resetButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+        	Picture resetPicture = new Picture(Blur.thePicture);
+        	Blur.changes.push(resetPicture);
+        	setImage(Blur.changes.peek());
+          }
+     });
+   //redoButton Button press
+    redoButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+        	if (!Blur.retractions.empty()) {
+        		Blur.changes.push(Blur.retractions.pop());
+        	} 
+        	setImage(Blur.changes.peek());
+          }
+     });
+    //undoButton Button press
+    undoButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+        	if (Blur.changes.size() > 1) {
+        		Blur.retractions.push(Blur.changes.pop());
+            	if (Blur.changes.empty()) {
+            		Blur.changes.push(Blur.retractions.pop());
+            	}
+        	} 
+        	setImage(Blur.changes.peek());
+          }
+     });
   }
+ 
   
   /**
    * Create the pixel location panel
@@ -368,7 +419,9 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     rowLabel = new JLabel("Row:");
     colLabel = new JLabel("Column:");
     kernelLabel = new JLabel("Kernel Size:");
-    
+    resetLabel = new JLabel("Reset Button:");
+    redoLabel = new JLabel("Redo:");
+    undoLabel = new JLabel("Undo:");
     // create the text fields
     colValue = new JTextField(Integer.toString(colIndex + numberBase),6);
     colValue.addActionListener(new ActionListener() {
@@ -388,6 +441,8 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colValue.getText(),rowValue.getText());
       }
     });
+    
+    
     // set up the next and previous buttons
     setUpNextAndPreviousButtons();
     
@@ -413,6 +468,15 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     hBox.add(kernelPrevButton);
     hBox.add(kernelValue);
     hBox.add(kernelNextButton);
+    hBox.add(Box.createHorizontalStrut(10));
+    hBox.add(resetLabel);
+    hBox.add(resetButton);
+    hBox.add(Box.createHorizontalStrut(10));
+    hBox.add(undoLabel);
+    hBox.add(undoButton);
+    hBox.add(Box.createHorizontalStrut(10));
+    hBox.add(redoLabel);
+    hBox.add(redoButton);
     locationPanel.add(hBox);
     hBox.add(Box.createHorizontalGlue());
     
