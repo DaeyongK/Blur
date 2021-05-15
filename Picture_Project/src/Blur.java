@@ -13,18 +13,21 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	public static Picture pict = new Picture(thePicture);
 	public static Stack<Picture> changes = new Stack<Picture>();
 	public static Stack<Picture> retractions = new Stack<Picture>();
+	public static Graphics2D graphics;
+	public static Picture disp;
 	public Blur(){
 		super(new Picture(1280,720));
 		changes.push(pict);
 		displayMain();
 	}
 	private void displayMain() {
-		Picture disp = new Picture(thePicture);
-		Graphics2D graphics = disp.createGraphics();
+		int h = pict.getHeight();
+		int w = pict.getWidth();
+		disp = new Picture(w+100, h+100);
+		graphics = disp.createGraphics();
 		graphics.setColor(Color.black);
 		graphics.setFont(new Font("Times", Font.BOLD, 26));
-		int h = pict.getHeight();
-		graphics.drawString("Click on two pixels to blur the area in between!", 30, h+30);
+		graphics.drawString("Click on two pixels to blur the area in between!", 60, h+100);
 		graphics.drawImage(pict.getBufferedImage(), 0, 0, this);
 		setImage(disp);
 		// setImage() changes the title each time it's called
@@ -136,7 +139,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				coords[1] = y;
 				Blur.changes.push(Blur.inverse_color());
 		        count++;
-		        setImage(Blur.changes.peek());
+				setImage(changes.peek());
 			} else if (coords[2]==-1){
 				coords[2] = x;
 				coords[3] = y;
@@ -149,8 +152,10 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				coords[1] = y;
 				Blur.changes.push(Blur.inverse_color());
 		        count++;
-		        setImage(Blur.changes.peek());
+				setImage(changes.peek());
 			}
+		} else {
+			graphics.drawString("Clicked out of bounds!", 60, h+100);
 		}
 	}
 	public boolean imageUpdate(Image arg0, int arg1, int arg2, int arg3,

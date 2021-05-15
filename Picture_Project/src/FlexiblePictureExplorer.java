@@ -378,7 +378,6 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         	  Blur.coords[0] = -1;
         	  Blur.coords[1] = -1;
           }
-          Blur.inverse_color();
           displayPixelInformation(colIndex,rowIndex);
           Blur.changes.push(Blur.inverse_color());
           count++;
