@@ -8,9 +8,9 @@ import java.awt.image.ImageObserver;
 import java.lang.Math;
 import java.util.Stack;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
-	private int[] coords = {-1,-1,-1,-1};
+	public static int[] coords = {-1,-1,-1,-1};
 	public static String thePicture = "slideshow/loveIsWar.png";
-	private Picture pict = new Picture(thePicture);
+	public static Picture pict = new Picture(thePicture);
 	public static Stack<Picture> changes = new Stack<Picture>();
 	public static Stack<Picture> retractions = new Stack<Picture>();
 	public Blur(){
@@ -19,15 +19,40 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		displayMain();
 	}
 	private void displayMain() {
-		Picture disp = new Picture(1280,720);
+		Picture disp = new Picture(thePicture);
 		Graphics2D graphics = disp.createGraphics();
 		graphics.setColor(Color.black);
 		graphics.setFont(new Font("Times", Font.BOLD, 26));
-		graphics.drawString("Click on two pixels to blur the area in between!", 30, 650);
+		int h = pict.getHeight();
+		graphics.drawString("Click on two pixels to blur the area in between!", 30, h+30);
 		graphics.drawImage(pict.getBufferedImage(), 0, 0, this);
 		setImage(disp);
 		// setImage() changes the title each time it's called
 		setTitle("Blur Project");
+	}
+	public static Picture inverse_color() {
+		int red;
+		int green;
+		int blue;
+		if(count==1) {
+			changes.pop();
+			count=0;
+		}
+		Picture newPict = new Picture(changes.peek());
+		int w = pict.getWidth();
+		int h = pict.getHeight();
+		for(int i = 0; i < h; i++) {
+			for(int j = 0; j < w; j++) {
+				if(((j==kernelIndex/2||j==w-kernelIndex/2) && (i>kernelIndex/2&&i<h-kernelIndex/2)) || ((i==kernelIndex/2||i==h-kernelIndex/2) && (j>kernelIndex/2&&j<w-kernelIndex/2))) {
+					Pixel pix=newPict.getPixel(j, i);
+					red=255-pix.getRed();
+					green=255-pix.getGreen();
+					blue=255-pix.getBlue();
+					newPict.getPixel(j, i).setColor(new Color((int)red, (int)green, (int)blue));
+				}
+			}
+		}
+		return newPict;
 	}
 	public void gaussian_blur(int[] coords) {
 		int up = -1;
@@ -52,6 +77,10 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 			right = 0;
 			left = 2;
 		}
+		if(count==1) {
+			changes.pop();
+			count=0;
+		}
 		double[][] weights = new double[kernelIndex][kernelIndex];
 		Color[][] blurredPortion = new Color[coords[down]-coords[up]+1][coords[right]-coords[left]+1];
 		for(int i = coords[up]; i < coords[down]; i++) {
@@ -70,7 +99,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				}
 				for(int row = -(kernelIndex-1)/2; row < ((kernelIndex-1)/2)+1; row++) {
 					for(int col = -(kernelIndex-1)/2; col < ((kernelIndex-1)/2)+1; col++) {
-						Pixel pix = new Pixel(pict, j+col, i+row);
+						Pixel pix = new Pixel(changes.peek(), j+col, i+row);
 						double weight = weights[row+(kernelIndex-1)/2][col+(kernelIndex-1)/2];
 						red+=(pix.getRed()*weight);
 						green+=(pix.getGreen()*weight);
@@ -99,19 +128,29 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	public void mouseClickedAction(DigitalPicture pict, Pixel pix) {
 		int y = pix.getY();
 		int x = pix.getX();
-		if(coords[0]==-1) {
-			coords[0] = x;
-			coords[1] = y;
-		} else if (coords[2]==-1){
-			coords[2] = x;
-			coords[3] = y;
-			gaussian_blur(coords);
-		} else {
-			for(int i = 0; i < 4; i++) {
-				coords[i] = -1;
+		int w = pict.getWidth();
+		int h = pict.getHeight();
+		if(!((x<kernelIndex/2||x>w-kernelIndex/2) || (y<kernelIndex/2||y>h-kernelIndex/2))) {
+			if(coords[0]==-1) {
+				coords[0] = x;
+				coords[1] = y;
+				Blur.changes.push(Blur.inverse_color());
+		        count++;
+		        setImage(Blur.changes.peek());
+			} else if (coords[2]==-1){
+				coords[2] = x;
+				coords[3] = y;
+				gaussian_blur(coords);
+			} else {
+				for(int i = 0; i < 4; i++) {
+					coords[i] = -1;
+				}
+				coords[0] = x;
+				coords[1] = y;
+				Blur.changes.push(Blur.inverse_color());
+		        count++;
+		        setImage(Blur.changes.peek());
 			}
-			coords[0] = x;
-			coords[1] = y;
 		}
 	}
 	public boolean imageUpdate(Image arg0, int arg1, int arg2, int arg3,

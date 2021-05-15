@@ -31,9 +31,10 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   private int rowIndex = 0; 
   /** column index */
   private int colIndex = 0;
-  public int kernelIndex = 7;
+  public static int kernelIndex = 7;
   public int resetIndex = 99;
   private JFrame popup = null;
+  public static int count = 0;
   
   // main GUI
   /** window to hold GUI */
@@ -360,6 +361,9 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           if (kernelIndex < 3)
             kernelIndex = 3;
           displayPixelInformation(colIndex,rowIndex);
+          Blur.changes.push(Blur.inverse_color());
+          count++;
+          setImage(Blur.changes.peek());
         }
      });
   //kernelNextButton button press
@@ -368,12 +372,26 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           kernelIndex+=2;
           if (kernelIndex > 99)
             kernelIndex = 99;
+          if(Blur.coords[0]>Blur.pict.getWidth()-kernelIndex/2 ||
+        	Blur.coords[0]<kernelIndex/2 || Blur.coords[1]<kernelIndex/2 ||
+        	Blur.coords[1]>Blur.pict.getHeight()-kernelIndex/2) {
+        	  Blur.coords[0] = -1;
+        	  Blur.coords[1] = -1;
+          }
+          Blur.inverse_color();
           displayPixelInformation(colIndex,rowIndex);
+          Blur.changes.push(Blur.inverse_color());
+          count++;
+          setImage(Blur.changes.peek());
         }
      });
   //resetButton button press
     resetButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
+        	if(count==1) {
+    			Blur.changes.pop();
+    			count=0;
+    		}
         	Picture resetPicture = new Picture(Blur.thePicture);
         	Blur.changes.push(resetPicture);
         	setImage(Blur.changes.peek());
@@ -391,6 +409,10 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     //undoButton Button press
     undoButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
+        	if(count==1) {
+    			Blur.changes.pop();
+    			count=0;
+    		}
         	if (Blur.changes.size() > 1) {
         		Blur.retractions.push(Blur.changes.pop());
             	if (Blur.changes.empty()) {
