@@ -1,4 +1,5 @@
 import java.nio.file.*;
+import java.util.*;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -39,7 +40,10 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   public int resetIndex = 99;
   private JFrame popup = null;
   public static int count = 0;
-  private ArrayList<String> imageNames = new ArrayList<String>();
+  public static ArrayList<String> imageNames = new ArrayList<String>();
+  public static ArrayList<Integer> counts = new ArrayList<Integer>();
+  public static int currentIndex = 0;
+  public static HashMap<String, Stack<Picture>> allImages = new HashMap<String, Stack<Picture>>();
   // main GUI
   /** window to hold GUI */
   private JFrame pictureFrame;
@@ -327,9 +331,9 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           if (kernelIndex < 3)
             kernelIndex = 3;
           displayPixelInformation(colIndex,rowIndex);
-          Blur.changes.push(Blur.inverse_color());
-          count++;
-          setImage(Blur.changes.peek());
+          allImages.get(imageNames.get(currentIndex)+":c").push(Blur.inverse_color());
+          counts.set(currentIndex, counts.get(currentIndex)+1);
+          setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
         }
      });
   //kernelNextButton button press
@@ -338,150 +342,87 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
           kernelIndex+=2;
           if (kernelIndex > 99)
             kernelIndex = 99;
-          if(Blur.coords[0]>Blur.pict.getWidth()-kernelIndex/2 ||
+          if(Blur.coords[0]>allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth()-kernelIndex/2 ||
         	Blur.coords[0]<kernelIndex/2 || Blur.coords[1]<kernelIndex/2 ||
-        	Blur.coords[1]>Blur.pict.getHeight()-kernelIndex/2) {
+        	Blur.coords[1]>allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight()-kernelIndex/2) {
         	  Blur.coords[0] = -1;
         	  Blur.coords[1] = -1;
           }
           displayPixelInformation(colIndex,rowIndex);
-          Blur.changes.push(Blur.inverse_color());
-          count++;
-          setImage(Blur.changes.peek());
+          allImages.get(imageNames.get(currentIndex)+":c").push(Blur.inverse_color());
+          counts.set(currentIndex, counts.get(currentIndex)+1);
+          setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
         }
      });
   //resetButton button press
     resetButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        	if (Blur.picValue == 0) {
-        		if(count==1) {
-        			Blur.changes.pop();
-        			count=0;
-        		}
-            	Picture resetPicture = new Picture(Blur.thePicture);
-            	Blur.changes.push(resetPicture);
-            	setImage(Blur.changes.peek());
-        	} else if(Blur.picValue ==1) {
-        		if(count==1) {
-        			Blur.changes2.pop();
-        			count=0;
-        		}
-            	Picture resetPicture = new Picture(Blur.thePicture2);
-            	Blur.changes2.push(resetPicture);
-            	setImage(Blur.changes2.peek());
-        	} else if (Blur.picValue == 2) {
-        		if(count==1) {
-        			Blur.changes3.pop();
-        			count=0;
-        		}
-            	Picture resetPicture = new Picture(Blur.thePicture3);
-            	Blur.changes3.push(resetPicture);
-            	setImage(Blur.changes3.peek());
+        	if(counts.get(currentIndex)==1) {
+        		allImages.get(imageNames.get(currentIndex)+":c").pop();
+        		counts.set(currentIndex, 0);
         	}
-        	
-          }
-     });
+            Picture resetPicture = new Picture("User_Images/"+imageNames.get(currentIndex));
+            allImages.get(imageNames.get(currentIndex)+":c").push(resetPicture);
+            setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());	
+         }
+    });
    //redoButton Button press
     redoButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        	if (Blur.picValue == 0 ) {
-        		if (!Blur.retractions.empty()) {
-            		Blur.changes.push(Blur.retractions.pop());
-            	} 
-            	setImage(Blur.changes.peek());
-        	} else if (Blur.picValue == 1 ) {
-        		if (!Blur.retractions2.empty()) {
-            		Blur.changes2.push(Blur.retractions2.pop());
-            	} 
-            	setImage(Blur.changes2.peek());
-        	} else {
-        		if (!Blur.retractions3.empty()) {
-            		Blur.changes3.push(Blur.retractions3.pop());
-            	} 
-            	setImage(Blur.changes3.peek());
-        	}
-        	
-          }
+        	if (!allImages.get(imageNames.get(currentIndex)+":r").empty()) {
+        		allImages.get(imageNames.get(currentIndex)+":c").push(allImages.get(imageNames.get(currentIndex)+":r").pop());
+            } 
+            setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
+        }	
      });
     //undoButton Button press
     undoButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        	if (Blur.picValue == 0) {
-        		if(count==1) {
-        			Blur.changes.pop();
-        			count=0;
+        		if(counts.get(currentIndex)==1) {
+        			allImages.get(imageNames.get(currentIndex)+":c").pop();
+        			counts.set(currentIndex, 0);
         		}
-            	if (Blur.changes.size() > 1) {
-            		Blur.retractions.push(Blur.changes.pop());
-                	if (Blur.changes.empty()) {
-                		Blur.changes.push(Blur.retractions.pop());
+            	if (allImages.get(imageNames.get(currentIndex)+":c").size() > 1) {
+            		allImages.get(imageNames.get(currentIndex)+":r").push(allImages.get(imageNames.get(currentIndex)+":c").pop());
+                	if (allImages.get(imageNames.get(currentIndex)+":c").empty()) {
+                		allImages.get(imageNames.get(currentIndex)+":c").push(allImages.get(imageNames.get(currentIndex)+":r").pop());
                 	}
             	} 
-            	setImage(Blur.changes.peek());
-        	} else if (Blur.picValue == 1) {
-        		if(count==1) {
-        			Blur.changes2.pop();
-        			count=0;
-        		}
-            	if (Blur.changes2.size() > 1) {
-            		Blur.retractions2.push(Blur.changes2.pop());
-                	if (Blur.changes2.empty()) {
-                		Blur.changes2.push(Blur.retractions2.pop());
-                	}
-            	} 
-            	setImage(Blur.changes2.peek());
-        	} else if (Blur.picValue == 2) {
-        		if(count==1) {
-        			Blur.changes3.pop();
-        			count=0;
-        		}
-            	if (Blur.changes3.size() > 1) {
-            		Blur.retractions3.push(Blur.changes3.pop());
-                	if (Blur.changes3.empty()) {
-                		Blur.changes3.push(Blur.retractions3.pop());
-                	}
-            	} 
-            	setImage(Blur.changes3.peek());
-        	}
-        	
+            	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek()); 	
           }
      });
     //prevPic Button press
     prevPic.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        	Blur.picValue--;
-        	if (Blur.picValue <= 0) {
-        		Blur.picValue = 0;
-        		setImage(Blur.changes.peek());
-        	} else if (Blur.picValue == 1) {
-        		setImage(Blur.changes2.peek());
-        	} else if (Blur.picValue == 2) {
-        		setImage(Blur.changes3.peek());
+        	if(currentIndex==0) {
+        		currentIndex = imageNames.size()-1;
+        	} else {
+        		currentIndex--;
         	}
+        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
         }});
     //nextPic Button press
     nextPic.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        	Blur.picValue++;
-        	if (Blur.picValue == 0) {
-        		setImage(Blur.changes.peek());
-        	} else if (Blur.picValue == 1) {
-        		setImage(Blur.changes2.peek());
-        	} else if (Blur.picValue >=2) {
-        		Blur.picValue = 2;
-        		setImage(Blur.changes3.peek());
-        	} 
+        	if(currentIndex==imageNames.size()-1) {
+        		currentIndex = 0;
+        	} else {
+        		currentIndex++;
+        	}
+        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
         }});
     //addFile Button
     addFile.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
         	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        	File folder = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\njfedsfbhabdbi1322312.png");
+        	File folder = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/njfedsfbhabdbi1322312.png");
+//        	File folder = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\njfedsfbhabdbi1322312.png");
         	j.setCurrentDirectory(folder);
         	int selection = j.showSaveDialog(null);
         	if  (selection == JFileChooser.APPROVE_OPTION) {
         		File save = j.getSelectedFile();
-        		BufferedImage in = Blur.pict.getBufferedImage();
+        		Picture temporaryPic = new Picture("User_Images/"+imageNames.get(currentIndex));
+        		BufferedImage in = temporaryPic.getBufferedImage();
 				try {
 					in = ImageIO.read(save);
 				} catch (IOException e1) {
@@ -492,9 +433,16 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
 				}
         		System.out.println("Save as file: " + save.getAbsolutePath());
         		String imageName = save.getName();
-        		File temp = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\" + imageName);
+        		File temp = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/" + imageName);
+//        		File temp = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\" + imageName);
         		folder.renameTo(temp);
         		imageNames.add(imageName);
+        		counts.add(0);
+        		Stack<Picture> c = new Stack<Picture>();
+        		c.push(new Picture("User_Images/"+imageName));
+        		Stack<Picture> r = new Stack<Picture>();
+        		allImages.put(imageName+":c", c);
+        		allImages.put(imageName+":r", r);
         		
         	}
         }
@@ -541,7 +489,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colValue.getText(),rowValue.getText());
       }
     });
-    picName = new JTextField(Blur.pictureName);
+    picName = new JTextField("Picture");
     picName.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         displayPixelInformation(colValue.getText(),rowValue.getText());
