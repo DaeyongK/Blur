@@ -400,6 +400,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         		currentIndex--;
         	}
         	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
+        	displayPixelInformation(colIndex,rowIndex);
         }});
     //nextPic Button press
     nextPic.addActionListener(new ActionListener() {
@@ -410,6 +411,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         		currentIndex++;
         	}
         	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
+        	displayPixelInformation(colIndex,rowIndex);
         }});
     //addFile Button
     addFile.addActionListener(new ActionListener() {
@@ -431,7 +433,6 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         			ImageIO.write(in,"png",folder);
 				} catch (IOException e) {
 				}
-        		System.out.println("Save as file: " + save.getAbsolutePath());
         		String imageName = save.getName();
         		File temp = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/" + imageName);
 //        		File temp = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\" + imageName);
@@ -489,7 +490,8 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colValue.getText(),rowValue.getText());
       }
     });
-    picName = new JTextField("Picture");
+    imageNames.add(Blur.basePic);
+    picName = new JTextField(imageNames.get(currentIndex));
     picName.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         displayPixelInformation(colValue.getText(),rowValue.getText());
@@ -780,6 +782,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     imageDisplay.setCurrentX((int) (colIndex * zoomFactor));
     imageDisplay.setCurrentY((int) (rowIndex * zoomFactor));
     kernelValue.setText(Integer.toString(kernelIndex));
+    picName.setText(imageNames.get(currentIndex));
   }
   
   /**

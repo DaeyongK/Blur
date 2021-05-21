@@ -15,14 +15,12 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	public static Picture disp;
 	
 	public Blur(){
-		
 		super(new Picture(1280,720));
 		Stack<Picture> changes = new Stack<Picture>();
 		changes.push(pict1);
 		Stack<Picture> retractions = new Stack<Picture>();
 		allImages.put(basePic+":c", changes);
 		allImages.put(basePic+":r", retractions);
-		imageNames.add(basePic);
 		counts.add(0);
 		displayMain();
 	}
