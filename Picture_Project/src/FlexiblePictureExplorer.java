@@ -1,15 +1,12 @@
-import java.nio.file.*;
-import java.util.*;
-import java.io.*;
+
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.filechooser.*;
-import javax.imageio.ImageIO;
+
 import javax.swing.*;
 import java.awt.image.*;
 import javax.swing.border.*;
 import javax.swing.event.MouseInputAdapter;
-import java.util.ArrayList;
+
 // Changes 4/4/14 SAG: Made class and mouse click event method abstract. Removed action
 // for mouse pressed because it generated two clicks. Also dismissed pop-up
 // when new popup comes.
@@ -27,23 +24,17 @@ import java.util.ArrayList;
  * @author Keith McDermottt, gte047w@cc.gatech.edu
  * @author Barb Ericson ericson@cc.gatech.edu
  */
-@SuppressWarnings("unused")
 public abstract class FlexiblePictureExplorer implements MouseMotionListener, ActionListener, MouseListener
 {
  
   // current indicies
   /** row index */
-  private int rowIndex = 0; 
+  protected int rowIndex = 0; 
   /** column index */
-  private int colIndex = 0;
-  public static int kernelIndex = 7;
-  public int resetIndex = 99;
+  protected int colIndex = 0;
+  
   private JFrame popup = null;
-  public static int count = 0;
-  public static ArrayList<String> imageNames = new ArrayList<String>();
-  public static ArrayList<Integer> counts = new ArrayList<Integer>();
-  public static int currentIndex = 0;
-  public static HashMap<String, Stack<Picture>> allImages = new HashMap<String, Stack<Picture>>();
+  
   // main GUI
   /** window to hold GUI */
   private JFrame pictureFrame;
@@ -52,45 +43,31 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   
   // GUI components
   /** column label */
-  private JLabel colLabel;
+  protected JLabel colLabel;
   /** column previous button */
-  private JLabel rowLabel;
+  protected JButton colPrevButton;
+  /** row previous button */
+  protected JButton rowPrevButton;
+  /** column next button */
+  protected JButton colNextButton;
+  /** row next button */
+  protected JButton rowNextButton;
+  /** row label */
+  protected JLabel rowLabel;
   /** text field to show column index */
-  private JTextField colValue;
+  protected JTextField colValue;
   /** text field to show row index */
-  private JTextField rowValue;
-  //kernel
-  private JLabel kernelLabel;
-  private JButton kernelPrevButton;
-  private JButton kernelNextButton;
-  private JTextField kernelValue;
-  //reset
-  private JButton resetButton;
-  private JLabel resetLabel;
-  //redo
-  private JButton redoButton;
-  private JLabel  redoLabel;
- //undo
-  private JButton undoButton;
-  private JLabel undoLabel;
-  public static int undoRedoValue;
-  //picture switching
-  private JButton nextPic;
-  private JButton prevPic;
-  private JTextField picName;
-  private JLabel picLabel;
-  //addFile
-  private JButton addFile;
+  protected JTextField rowValue;
   /** red value label */
-  private JLabel rValue;
+  protected JLabel rValue;
   /** green value label */
-  private JLabel gValue;
+  protected JLabel gValue;
   /** blue value label */
-  private JLabel bValue;
+  protected JLabel bValue;
   /** color swatch label */
-  private JLabel colorLabel;
+  protected JLabel colorLabel;
   /** panel to show the color swatch */
-  private JPanel colorPanel;
+  protected JPanel colorPanel;
   
   // menu components
   /** menu bar */
@@ -113,19 +90,19 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
   private JMenuItem fiveHundred;
   
   /** The picture being explored */
-  private DigitalPicture picture;
+  protected DigitalPicture picture;
   
   /** The image icon used to display the picture */
   private ImageIcon scrollImageIcon;
   
   /** The image display */
-  private ImageDisplay imageDisplay;
+  protected ImageDisplay imageDisplay;
   
   /** the zoom factor (amount to zoom) */
-  private double zoomFactor;
+  protected double zoomFactor;
   
   /** the number system to use, 0 means starting at 0, 1 means starting at 1 */
-  private int numberBase=0;
+  protected int numberBase=0;
   
   /**
    * Public constructor 
@@ -284,30 +261,17 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
                                   "previous index");
     Icon nextIcon = new ImageIcon(DigitalPicture.class.getResource("rightArrow.gif"), 
                                   "next index");
-    Icon resetIcon = new ImageIcon("slideshow/resettwoNEW_27x27.png"); 
-    Icon undoIcon = new ImageIcon("slideshow/Undo_Icon_27x27.png"); 
-    Icon redoIcon = new ImageIcon("slideshow/redo_icon_27x27.png"); 
-    
-   
-    //create the arrow buttons
-    kernelPrevButton = new JButton(prevIcon);
-    kernelNextButton = new JButton(nextIcon);
-    resetButton = new JButton(resetIcon);
-    redoButton = new JButton(redoIcon);
-    undoButton = new JButton(undoIcon);
-    prevPic = new JButton(prevIcon);
-    nextPic = new JButton(nextIcon);
-    //addfile Button
-    addFile = new JButton("Choose File");
+    // create the arrow buttons
+    colPrevButton = new JButton(prevIcon);
+    colNextButton = new JButton(nextIcon);
+    rowPrevButton = new JButton(prevIcon);
+    rowNextButton = new JButton(nextIcon);
     
     // set the tool tip text
-    kernelNextButton.setToolTipText("Click to increase Kernel size");
-    kernelPrevButton.setToolTipText("Click to decrease Kernel size");
-    resetButton.setToolTipText("Click to reset to the Original Picture");
-    redoButton.setToolTipText("Click to redo your last action");
-    undoButton.setToolTipText("Click to undo your last action");
-    prevPic.setToolTipText("Click to go to the previous picture");
-    nextPic.setToolTipText("Click to go to the next picture");
+    colNextButton.setToolTipText("Click to go to the next column value");
+    colPrevButton.setToolTipText("Click to go to the previous column value");
+    rowNextButton.setToolTipText("Click to go to the next row value");
+    rowPrevButton.setToolTipText("Click to go to the previous row value");
     
     // set the sizes of the buttons
     int prevWidth = prevIcon.getIconWidth() + 2;
@@ -316,140 +280,51 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     int nextHeight = nextIcon.getIconHeight() + 2;
     Dimension prevDimension = new Dimension(prevWidth,prevHeight);
     Dimension nextDimension = new Dimension(nextWidth, nextHeight);
-    kernelNextButton.setPreferredSize(nextDimension);
-    kernelNextButton.setPreferredSize(nextDimension);
-    resetButton.setPreferredSize(nextDimension);
-    redoButton.setPreferredSize(nextDimension);
-    undoButton.setPreferredSize(prevDimension);
-    prevPic.setPreferredSize(prevDimension);
-    nextPic.setPreferredSize(nextDimension);
-    addFile.setPreferredSize(nextDimension);
-    //kernelPrevButton button press
-    kernelPrevButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-          kernelIndex-=2;
-          if (kernelIndex < 3)
-            kernelIndex = 3;
-          displayPixelInformation(colIndex,rowIndex);
-          allImages.get(imageNames.get(currentIndex)+":c").push(Blur.inverse_color());
-          counts.set(currentIndex, counts.get(currentIndex)+1);
-          setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-        }
-     });
-  //kernelNextButton button press
-    kernelNextButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-          kernelIndex+=2;
-          if (kernelIndex > 99)
-            kernelIndex = 99;
-          if(Blur.coords[0]>allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth()-kernelIndex/2 ||
-        	Blur.coords[0]<kernelIndex/2 || Blur.coords[1]<kernelIndex/2 ||
-        	Blur.coords[1]>allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight()-kernelIndex/2) {
-        	  Blur.coords[0] = -1;
-        	  Blur.coords[1] = -1;
-          }
-          displayPixelInformation(colIndex,rowIndex);
-          allImages.get(imageNames.get(currentIndex)+":c").push(Blur.inverse_color());
-          counts.set(currentIndex, counts.get(currentIndex)+1);
-          setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-        }
-     });
-  //resetButton button press
-    resetButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        	if(counts.get(currentIndex)==1) {
-        		allImages.get(imageNames.get(currentIndex)+":c").pop();
-        		counts.set(currentIndex, 0);
-        	}
-            Picture resetPicture = new Picture("User_Images/"+imageNames.get(currentIndex));
-            allImages.get(imageNames.get(currentIndex)+":c").push(resetPicture);
-            setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());	
-         }
+    colPrevButton.setPreferredSize(prevDimension);
+    rowPrevButton.setPreferredSize(prevDimension);
+    colNextButton.setPreferredSize(nextDimension);
+    rowNextButton.setPreferredSize(nextDimension);
+    
+    // handle previous column button press
+    colPrevButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        colIndex--;
+        if (colIndex < 0)
+          colIndex = 0;
+        displayPixelInformation(colIndex,rowIndex);
+      }
     });
-   //redoButton Button press
-    redoButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        	if (!allImages.get(imageNames.get(currentIndex)+":r").empty()) {
-        		allImages.get(imageNames.get(currentIndex)+":c").push(allImages.get(imageNames.get(currentIndex)+":r").pop());
-            } 
-            setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-        }	
-     });
-    //undoButton Button press
-    undoButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        		if(counts.get(currentIndex)==1) {
-        			allImages.get(imageNames.get(currentIndex)+":c").pop();
-        			counts.set(currentIndex, 0);
-        		}
-            	if (allImages.get(imageNames.get(currentIndex)+":c").size() > 1) {
-            		allImages.get(imageNames.get(currentIndex)+":r").push(allImages.get(imageNames.get(currentIndex)+":c").pop());
-                	if (allImages.get(imageNames.get(currentIndex)+":c").empty()) {
-                		allImages.get(imageNames.get(currentIndex)+":c").push(allImages.get(imageNames.get(currentIndex)+":r").pop());
-                	}
-            	} 
-            	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek()); 	
-          }
-     });
-    //prevPic Button press
-    prevPic.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        	if(currentIndex==0) {
-        		currentIndex = imageNames.size()-1;
-        	} else {
-        		currentIndex--;
-        	}
-        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-        	displayPixelInformation(colIndex,rowIndex);
-        }});
-    //nextPic Button press
-    nextPic.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        	if(currentIndex==imageNames.size()-1) {
-        		currentIndex = 0;
-        	} else {
-        		currentIndex++;
-        	}
-        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-        	displayPixelInformation(colIndex,rowIndex);
-        }});
-    //addFile Button
-    addFile.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-        	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        	File folder = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/njfedsfbhabdbi1322312.png");
-//        	File folder = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\njfedsfbhabdbi1322312.png");
-        	j.setCurrentDirectory(folder);
-        	int selection = j.showSaveDialog(null);
-        	if  (selection == JFileChooser.APPROVE_OPTION) {
-        		File save = j.getSelectedFile();
-        		Picture temporaryPic = new Picture("User_Images/"+imageNames.get(currentIndex));
-        		BufferedImage in = temporaryPic.getBufferedImage();
-				try {
-					in = ImageIO.read(save);
-				} catch (IOException e1) {
-				}
-        		try {
-        			ImageIO.write(in,"png",folder);
-				} catch (IOException e) {
-				}
-        		String imageName = save.getName();
-        		File temp = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/" + imageName);
-//        		File temp = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\" + imageName);
-        		folder.renameTo(temp);
-        		imageNames.add(imageName);
-        		counts.add(0);
-        		Stack<Picture> c = new Stack<Picture>();
-        		c.push(new Picture("User_Images/"+imageName));
-        		Stack<Picture> r = new Stack<Picture>();
-        		allImages.put(imageName+":c", c);
-        		allImages.put(imageName+":r", r);
-        		
-        	}
-        }
-     });
+    
+    // handle previous row button press
+    rowPrevButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        rowIndex--;
+        if (rowIndex < 0)
+          rowIndex = 0;
+        displayPixelInformation(colIndex,rowIndex);
+      }
+    });
+    
+    // handle next column button press
+    colNextButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        colIndex++;
+        if (colIndex >= picture.getWidth())
+          colIndex = picture.getWidth() - 1;
+        displayPixelInformation(colIndex,rowIndex);
+      }
+    });
+    
+    // handle next row button press
+    rowNextButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        rowIndex++;
+        if (rowIndex >= picture.getHeight())
+          rowIndex = picture.getHeight() - 1;
+        displayPixelInformation(colIndex,rowIndex);
+      }
+    });
   }
- 
   
   /**
    * Create the pixel location panel
@@ -466,11 +341,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     // create the labels
     rowLabel = new JLabel("Row:");
     colLabel = new JLabel("Column:");
-    kernelLabel = new JLabel("Kernel Size:");
-    resetLabel = new JLabel("Reset Button:");
-    redoLabel = new JLabel("Redo:");
-    undoLabel = new JLabel("Undo:");
-    picLabel = new JLabel("Switch Pictures:");
+    
     // create the text fields
     colValue = new JTextField(Integer.toString(colIndex + numberBase),6);
     colValue.addActionListener(new ActionListener() {
@@ -484,21 +355,6 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
         displayPixelInformation(colValue.getText(),rowValue.getText());
       }
     });
-    kernelValue = new JTextField(Integer.toString(kernelIndex + numberBase),6);
-    kernelValue.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        displayPixelInformation(colValue.getText(),rowValue.getText());
-      }
-    });
-    imageNames.add(Blur.basePic);
-    picName = new JTextField(imageNames.get(currentIndex));
-    picName.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        displayPixelInformation(colValue.getText(),rowValue.getText());
-      }
-    });
-    
-    
     
     // set up the next and previous buttons
     setUpNextAndPreviousButtons();
@@ -510,25 +366,16 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     rowValue.setFont(labelFont);
     
     // add the items to the vertical box and the box to the panel
-    hBox.add(picLabel);
-    hBox.add(prevPic);
-    hBox.add(picName);
-    hBox.add(nextPic);
+    hBox.add(Box.createHorizontalGlue());
+    hBox.add(rowLabel);
+    hBox.add(rowPrevButton);
+    hBox.add(rowValue);
+    hBox.add(rowNextButton);
     hBox.add(Box.createHorizontalStrut(10));
-    hBox.add(kernelLabel);
-    hBox.add(kernelPrevButton);
-    hBox.add(kernelValue);
-    hBox.add(kernelNextButton);
-    hBox.add(Box.createHorizontalStrut(10));
-    hBox.add(resetLabel);
-    hBox.add(resetButton);
-    hBox.add(Box.createHorizontalStrut(10));
-    hBox.add(undoLabel);
-    hBox.add(undoButton);
-    hBox.add(Box.createHorizontalStrut(10));
-    hBox.add(redoLabel);
-    hBox.add(redoButton);
-    hBox.add(addFile);
+    hBox.add(colLabel);
+    hBox.add(colPrevButton);
+    hBox.add(colValue);
+    hBox.add(colNextButton);
     locationPanel.add(hBox);
     hBox.add(Box.createHorizontalGlue());
     
@@ -705,7 +552,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
    * @return true if the row and column are in the picture 
    * and false otherwise
    */
-  private boolean isLocationInPicture(int column, int row)
+  protected boolean isLocationInPicture(int column, int row)
   {
     boolean result = false; // the default is false
     if (column >= 0 && column < picture.getWidth() &&
@@ -781,8 +628,6 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
     // notify the image display of the current x and y
     imageDisplay.setCurrentX((int) (colIndex * zoomFactor));
     imageDisplay.setCurrentY((int) (rowIndex * zoomFactor));
-    kernelValue.setText(Integer.toString(kernelIndex));
-    picName.setText(imageNames.get(currentIndex));
   }
   
   /**
@@ -809,7 +654,7 @@ public abstract class FlexiblePictureExplorer implements MouseMotionListener, Ac
    * Method to clear the labels and current color and reset the 
    * current index to -1
    */
-  private void clearInformation()
+  protected void clearInformation()
   {
     colValue.setText("N/A");
     rowValue.setText("N/A");
