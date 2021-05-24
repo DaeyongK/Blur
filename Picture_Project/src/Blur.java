@@ -63,6 +63,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	//addFile
 	private JButton addFile;
 	private JLabel addFileLabel;
+	//savePicture
+	private JButton savePic;
+	private JLabel savePicLabel;
 	private void setUpNextAndPreviousButtons()
 	  {
 	    // create the image icons for the buttons
@@ -74,8 +77,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    Icon undoIcon = new ImageIcon("slideshow/Undo_Icon_27x27.png"); 
 	    Icon redoIcon = new ImageIcon("slideshow/redo_icon_27x27.png"); 
 	    Icon addFileIcon = new ImageIcon("slideshow/plusImage_27x27.png");
+	    Icon savePicIcon = new ImageIcon("slideshow/DownloadButton_27x27.png");
 	   
-	    //create the arrow buttons
+	    //create the icons for each button
 	    kernelPrevButton = new JButton(prevIcon);
 	    kernelNextButton = new JButton(nextIcon);
 	    resetButton = new JButton(resetIcon);
@@ -83,8 +87,8 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    undoButton = new JButton(undoIcon);
 	    prevPic = new JButton(prevIcon);
 	    nextPic = new JButton(nextIcon);
-	    //addfile Button
 	    addFile = new JButton(addFileIcon);
+	    savePic = new JButton(savePicIcon);
 	    
 	    // set the tool tip text
 	    kernelNextButton.setToolTipText("Click to increase Kernel size");
@@ -95,6 +99,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    prevPic.setToolTipText("Click to go to the previous picture");
 	    nextPic.setToolTipText("Click to go to the next picture");
 	    addFile.setToolTipText("Click to add another Picture to Blur");
+	    savePic.setToolTipText("Click to save the Picture to your computer");
 	    
 	    // set the sizes of the buttons
 	    int prevWidth = prevIcon.getIconWidth() + 2;
@@ -111,6 +116,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    prevPic.setPreferredSize(prevDimension);
 	    nextPic.setPreferredSize(nextDimension);
 	    addFile.setPreferredSize(nextDimension);
+	    savePic.setPreferredSize(nextDimension);
 	    //kernelPrevButton button press
 	    kernelPrevButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
@@ -235,6 +241,10 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	        	}
 	        }
 	     });
+	    savePic.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent evt) {
+	        	
+	        }});
 	  }
 	public void displayPixelInformation(String xString, String yString)
 	  {
@@ -255,6 +265,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    undoLabel = new JLabel("Undo:");
 	    picLabel = new JLabel("Switch Pictures:");
 	    addFileLabel = new JLabel("Add File:");
+	    savePicLabel = new JLabel("Download Picture:");
 	    // create the text fields
 	    colValue = new JTextField(Integer.toString(colIndex + numberBase),6);
 	    colValue.addActionListener(new ActionListener() {
@@ -315,6 +326,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    hBox.add(Box.createHorizontalStrut(10));
 	    hBox.add(addFileLabel);
 	    hBox.add(addFile);
+	    hBox.add(Box.createHorizontalStrut(10));
+	    hBox.add(savePicLabel);
+	    hBox.add(savePic);
 	    locationPanel.add(hBox);
 	    hBox.add(Box.createHorizontalGlue());
 	    
