@@ -66,7 +66,10 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	//savePicture
 	private JButton savePic;
 	private JLabel savePicLabel;
+	private Stack<Picture> c = new Stack<Picture>();
+	private File savedFile;
 	private void setUpNextAndPreviousButtons()
+	
 	  {
 	    // create the image icons for the buttons
 	    Icon prevIcon = new ImageIcon(DigitalPicture.class.getResource("leftArrow.gif"), 
@@ -232,7 +235,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	        		folder.renameTo(temp);
 	        		imageNames.add(imageName);
 	        		counts.add(0);
-	        		Stack<Picture> c = new Stack<Picture>();
+	        		
 	        		c.push(new Picture("User_Images/"+imageName));
 	        		Stack<Picture> r = new Stack<Picture>();
 	        		allImages.put(imageName+":c", c);
@@ -243,7 +246,32 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	     });
 	    savePic.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
-	        	
+	        	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+	   	     		BufferedImage image = null;
+	   	     		File folder = null;
+	   	     		File f = null;
+	       	//   	folder = new File("/Users/daeyong/git/Blur/Picture_Project/Download_Images/njfedsfbhabdbi1322312.png");
+	   	        	folder = new File("C:\\Users\\Suraj Singh\\Desktop\\folder for CompsciA\\");
+	   	        	j.setCurrentDirectory(folder);
+	   	        	int selection = j.showSaveDialog(null);
+	   	        	if (selection == j.APPROVE_OPTION) {
+	   	        		try  {
+	   	        			//below: file name of the image
+	   	        			f = new File(allImages.get(imageNames.get(currentIndex)+":c").peek().getFileName());
+		   	        		//below gives the dimensions of the picture file
+	   	        			image = new BufferedImage(allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth(),allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight(),BufferedImage.TYPE_INT_ARGB);
+		   	        		image = ImageIO.read(f); //reads the image info
+	   	        		} catch (IOException e) {
+		   	        		
+	   	        		}
+	   	        		try {
+	   	        			folder = new File("C:\\Users\\Suraj Singh\\Desktop\\folder for CompsciA\\" + f ); //dedicates the position of the new file
+	   	        			ImageIO.write(image, "png", folder); //writes the image info to this new file
+	   	        		} catch (IOException e) {
+	   	        			
+	   	        		}
+		   	     		
+	   	        	}
 	        }});
 	  }
 	public void displayPixelInformation(String xString, String yString)
@@ -487,6 +515,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				newPict.getPixel(j, i).setColor(blurredPortion[i-coords[up]][j-coords[left]]);
 			}
 		}
+		//use savedFile with newPict some how
 		setImage(newPict);
 		allImages.get(imageNames.get(currentIndex)+":c").push(newPict);		
 	}
@@ -527,8 +556,15 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		return false;
 	}
 	
-	public static void main (String args[]){
-		new Blur();
+	public static void main(String args[]){
+		File folderOfImages = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images");
+		Blur test = new Blur();
+		String[]images = folderOfImages.list();
+		for (String image : images) {
+			File theCurrentFile = new File(folderOfImages.getPath(),image);
+			theCurrentFile.delete();
+		}
+		
 	}
 
 
