@@ -287,11 +287,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    savePic.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
 	        	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-	   	     		BufferedImage image = null;
 	   	     		File folder = null;
-	   	     		File f = null;
 	   	        	int selection = j.showSaveDialog(null);
-	   	        	if (selection == j.APPROVE_OPTION) {
+	   	        	if (selection == JFileChooser.APPROVE_OPTION) {
 	   	        		try {
 	   	        			Picture temporaryPic = allImages.get(imageNames.get(currentIndex)+":c").peek();
 	   		        		BufferedImage in = temporaryPic.getBufferedImage();
