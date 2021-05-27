@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
+	//not the same
 	public static int[] coords = {-1,-1,-1,-1};
 	public static String basePic = "loveIsWar.png";
 	public static Picture pict1 = new Picture("User_Images/" + basePic);
@@ -196,6 +197,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	        		currentIndex--;
 	        	}
 	        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
+	        	for (int i = 0; i < allImages.size() - 1;i++) {
+	        		System.out.println(allImages.get(imageNames.get(i)+":c").peek());
+	        	}
 	        	displayPixelInformation(colIndex,rowIndex);
 	        }});
 	    //nextPic Button press
@@ -250,10 +254,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	   	     		BufferedImage image = null;
 	   	     		File folder = null;
 	   	     		File f = null;
-	       	//   	folder = new File("/Users/daeyong/git/Blur/Picture_Project/Download_Images/njfedsfbhabdbi1322312.png");
-	   	        	folder = new File("C:\\Users\\Suraj Singh\\Desktop\\folder for CompsciA\\");
-	   	        	j.setCurrentDirectory(folder);
-	   	        	int selection = j.showSaveDialog(null);
+	   	        	int selection = j.showOpenDialog(null);
 	   	        	if (selection == j.APPROVE_OPTION) {
 	   	        		try  {
 	   	        			//below: file name of the image
@@ -515,12 +516,13 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 				newPict.getPixel(j, i).setColor(blurredPortion[i-coords[up]][j-coords[left]]);
 			}
 		}
-		//use savedFile with newPict some how
 		setImage(newPict);
 		allImages.get(imageNames.get(currentIndex)+":c").push(newPict);		
 	}
 	public void mouseClickedAction(DigitalPicture pic, Pixel pix) {
+		
 		pic = new Picture("User_Images/"+imageNames.get(currentIndex));
+
 		int y = pix.getY();
 		int x = pix.getX();
 		int w = pic.getWidth();
@@ -557,12 +559,15 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	}
 	
 	public static void main(String args[]){
-		File folderOfImages = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images");
 		Blur test = new Blur();
+		File folderOfImages = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images"); //file name for the junk folder
 		String[]images = folderOfImages.list();
 		for (String image : images) {
-			File theCurrentFile = new File(folderOfImages.getPath(),image);
-			theCurrentFile.delete();
+			if (basePic.equals(image)) {
+			} else {
+				File theCurrentFile = new File(folderOfImages.getPath(),image);
+				theCurrentFile.delete();
+			}
 		}
 		
 	}
