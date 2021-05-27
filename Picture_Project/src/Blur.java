@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
-	//not the same 5/27/21
+	//not the same 
 	public static int[] coords = {-1,-1,-1,-1};
 	public static String basePic = "loveIsWar.png";
 	public static Picture pict1 = new Picture("User_Images/" + basePic);
