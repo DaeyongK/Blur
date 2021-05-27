@@ -23,8 +23,11 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 import javax.swing.filechooser.FileSystemView;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	//not the same 
@@ -161,11 +164,13 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	          kernelIndex+=2;
 	          if (kernelIndex > 99)
 	            kernelIndex = 99;
-	          if(Blur.coords[0]>allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth()-kernelIndex/2 ||
+	          if((Blur.coords[0]>allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth()-kernelIndex/2 ||
 	        	Blur.coords[0]<kernelIndex/2 || Blur.coords[1]<kernelIndex/2 ||
-	        	Blur.coords[1]>allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight()-kernelIndex/2) {
+	        	Blur.coords[1]>allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight()-kernelIndex/2)&&(Blur.coords[0]!=-1&&Blur.coords[1]!=-1)) {
 	        	  Blur.coords[0] = -1;
 	        	  Blur.coords[1] = -1;
+	        	  JFrame parent = new JFrame();
+	        	  JOptionPane.showMessageDialog(parent, "Previous pixel out of bounds, please select again");
 	          }
 	          displayPixelInformation(colIndex,rowIndex);
 	          allImages.get(imageNames.get(currentIndex)+":c").push(Blur.inverse_color());
@@ -281,6 +286,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 		        	}
 		        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
 		        	displayPixelInformation(colIndex,rowIndex);
+				} else {
+					JFrame parent = new JFrame();
+		        	JOptionPane.showMessageDialog(parent, "Cannot delete base picture");
 				}
 	        }});
 	    //Save Picture
