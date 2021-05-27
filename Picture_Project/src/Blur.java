@@ -29,7 +29,7 @@ import javax.swing.filechooser.FileSystemView;
 public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	//not the same 
 	public static int[] coords = {-1,-1,-1,-1};
-	public static String basePic = "loveIsWar.png";
+	public static String basePic = "shiina.jpeg";
 	public static Picture pict1 = new Picture("User_Images/" + basePic);
 	public static Graphics2D graphics;
 	public static Picture disp;
@@ -67,8 +67,28 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	//savePicture
 	private JButton savePic;
 	private JLabel savePicLabel;
-	private Stack<Picture> c = new Stack<Picture>();
 	private File savedFile;
+	//deleteButton
+	private JButton delPic;
+	private JLabel delPicLabel;
+	public Blur(){
+		super(new Picture(1280,720));
+		File folderOfImages = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/"); //file name for the junk folder
+		String[]images = folderOfImages.list();
+		for (String image : images) {
+			if (!basePic.equals(image)) {
+				File theCurrentFile = new File(folderOfImages.getPath(),image);
+				theCurrentFile.delete();
+			}
+		}
+		Stack<Picture> changes = new Stack<Picture>();
+		changes.push(pict1);
+		Stack<Picture> retractions = new Stack<Picture>();
+		allImages.put(basePic+":c", changes);
+		allImages.put(basePic+":r", retractions);
+		counts.add(0);
+		displayMain();
+	}
 	private void setUpNextAndPreviousButtons()
 	
 	  {
@@ -82,7 +102,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    Icon redoIcon = new ImageIcon("slideshow/redo_icon_27x27.png"); 
 	    Icon addFileIcon = new ImageIcon("slideshow/plusImage_27x27.png");
 	    Icon savePicIcon = new ImageIcon("slideshow/DownloadButton_27x27.png");
-	   
+	    Icon delPicIcon = new ImageIcon("slideshow/Delete_Icon_27x27.png");
 	    //create the icons for each button
 	    kernelPrevButton = new JButton(prevIcon);
 	    kernelNextButton = new JButton(nextIcon);
@@ -93,6 +113,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    nextPic = new JButton(nextIcon);
 	    addFile = new JButton(addFileIcon);
 	    savePic = new JButton(savePicIcon);
+	    delPic = new JButton(delPicIcon);
 	    
 	    // set the tool tip text
 	    kernelNextButton.setToolTipText("Click to increase Kernel size");
@@ -104,7 +125,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    nextPic.setToolTipText("Click to go to the next picture");
 	    addFile.setToolTipText("Click to add another Picture to Blur");
 	    savePic.setToolTipText("Click to save the Picture to your computer");
-	    
+	    delPic.setToolTipText("Click to delete the current image");
 	    // set the sizes of the buttons
 	    int prevWidth = prevIcon.getIconWidth() + 2;
 	    int nextWidth = nextIcon.getIconWidth() + 2;
@@ -121,6 +142,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    nextPic.setPreferredSize(nextDimension);
 	    addFile.setPreferredSize(nextDimension);
 	    savePic.setPreferredSize(nextDimension);
+	    delPic.setPreferredSize(nextDimension);
 	    //kernelPrevButton button press
 	    kernelPrevButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
@@ -197,9 +219,6 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	        		currentIndex--;
 	        	}
 	        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
-	        	for (int i = 0; i < allImages.size() - 1;i++) {
-	        		System.out.println(allImages.get(imageNames.get(i)+":c").peek());
-	        	}
 	        	displayPixelInformation(colIndex,rowIndex);
 	        }});
 	    //nextPic Button press
@@ -217,8 +236,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    addFile.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
 	        	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-	     //   	File folder = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/njfedsfbhabdbi1322312.png");
-	        	File folder = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\njfedsfbhabdbi1322312.png");
+	        	File folder = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/njfedsfbhabdbi1322312.png");
 	        	j.setCurrentDirectory(folder);
 	        	int selection = j.showSaveDialog(null);
 	        	if  (selection == JFileChooser.APPROVE_OPTION) {
@@ -234,12 +252,11 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 					} catch (IOException e) {
 					}
 	        		String imageName = save.getName();
-	    //    		File temp = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/" + imageName);
-	        		File temp = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images\\" + imageName);
+	        		File temp = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/" + imageName);
 	        		folder.renameTo(temp);
 	        		imageNames.add(imageName);
 	        		counts.add(0);
-	        		
+	        		Stack<Picture> c = new Stack<Picture>();
 	        		c.push(new Picture("User_Images/"+imageName));
 	        		Stack<Picture> r = new Stack<Picture>();
 	        		allImages.put(imageName+":c", c);
@@ -248,30 +265,40 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	        	}
 	        }
 	     });
+	    //Delete Button press
+	    delPic.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent evt) {
+	        	File folderOfImages = new File("/Users/daeyong/git/Blur/Picture_Project/User_Images/");
+	        	if (!basePic.equals(imageNames.get(currentIndex))) {
+					File theCurrentFile = new File(folderOfImages.getPath(),imageNames.get(currentIndex));
+					theCurrentFile.delete();
+					allImages.remove(imageNames.get(currentIndex)+":c");
+					allImages.remove(imageNames.get(currentIndex)+":r");
+					imageNames.remove(currentIndex);
+					currentIndex--;
+		        	if(currentIndex==-1) {
+		        		currentIndex = imageNames.size();
+		        	}
+		        	setImage(allImages.get(imageNames.get(currentIndex)+":c").peek());
+		        	displayPixelInformation(colIndex,rowIndex);
+				}
+	        }});
+	    //Save Picture
 	    savePic.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent evt) {
 	        	JFileChooser j = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 	   	     		BufferedImage image = null;
 	   	     		File folder = null;
 	   	     		File f = null;
-	   	        	int selection = j.showOpenDialog(null);
+	   	        	int selection = j.showSaveDialog(null);
 	   	        	if (selection == j.APPROVE_OPTION) {
-	   	        		try  {
-	   	        			//below: file name of the image
-	   	        			f = new File(allImages.get(imageNames.get(currentIndex)+":c").peek().getFileName());
-		   	        		//below gives the dimensions of the picture file
-	   	        			image = new BufferedImage(allImages.get(imageNames.get(currentIndex)+":c").peek().getWidth(),allImages.get(imageNames.get(currentIndex)+":c").peek().getHeight(),BufferedImage.TYPE_INT_ARGB);
-		   	        		image = ImageIO.read(f); //reads the image info
-	   	        		} catch (IOException e) {
-		   	        		
-	   	        		}
 	   	        		try {
-	   	        			folder = new File("C:\\Users\\Suraj Singh\\Desktop\\folder for CompsciA\\" + f ); //dedicates the position of the new file
-	   	        			ImageIO.write(image, "png", folder); //writes the image info to this new file
+	   	        			Picture temporaryPic = allImages.get(imageNames.get(currentIndex)+":c").peek();
+	   		        		BufferedImage in = temporaryPic.getBufferedImage();
+	   	        			folder = j.getSelectedFile(); //dedicates the position of the new file
+	   	        			ImageIO.write(in, "png", folder); //writes the image info to this new file
 	   	        		} catch (IOException e) {
-	   	        			
-	   	        		}
-		   	     		
+	   	        		}	
 	   	        	}
 	        }});
 	  }
@@ -286,15 +313,16 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    Box hBox = Box.createHorizontalBox();
 	    
 	    // create the labels
-	    rowLabel = new JLabel("Row:");
-	    colLabel = new JLabel("Column:");
-	    kernelLabel = new JLabel("Kernel Size:");
-	    resetLabel = new JLabel("Reset Button:");
-	    redoLabel = new JLabel("Redo:");
-	    undoLabel = new JLabel("Undo:");
-	    picLabel = new JLabel("Switch Pictures:");
-	    addFileLabel = new JLabel("Add File:");
-	    savePicLabel = new JLabel("Download Picture:");
+	    rowLabel = new JLabel("Row: ");
+	    colLabel = new JLabel("Column: ");
+	    kernelLabel = new JLabel("Kernel Size: ");
+	    resetLabel = new JLabel("Reset Button: ");
+	    redoLabel = new JLabel("Redo: ");
+	    undoLabel = new JLabel("Undo: ");
+	    picLabel = new JLabel("Switch Pictures: ");
+	    addFileLabel = new JLabel("Add File: ");
+	    savePicLabel = new JLabel("Download Picture: ");
+	    delPicLabel = new JLabel("Delete Picture: ");
 	    // create the text fields
 	    colValue = new JTextField(Integer.toString(colIndex + numberBase),6);
 	    colValue.addActionListener(new ActionListener() {
@@ -358,6 +386,9 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    hBox.add(Box.createHorizontalStrut(10));
 	    hBox.add(savePicLabel);
 	    hBox.add(savePic);
+	    hBox.add(Box.createHorizontalStrut(10));
+	    hBox.add(delPicLabel);
+	    hBox.add(delPic);
 	    locationPanel.add(hBox);
 	    hBox.add(Box.createHorizontalGlue());
 	    
@@ -399,16 +430,7 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	    picName.setText(imageNames.get(currentIndex));
 	  }
 	
-	public Blur(){
-		super(new Picture(1280,720));
-		Stack<Picture> changes = new Stack<Picture>();
-		changes.push(pict1);
-		Stack<Picture> retractions = new Stack<Picture>();
-		allImages.put(basePic+":c", changes);
-		allImages.put(basePic+":r", retractions);
-		counts.add(0);
-		displayMain();
-	}
+
 	private void displayMain() {
 		int h = pict1.getHeight();
 		int w = pict1.getWidth();
@@ -560,16 +582,6 @@ public class Blur extends FlexiblePictureExplorer implements ImageObserver {
 	
 	public static void main(String args[]){
 		Blur test = new Blur();
-		File folderOfImages = new File("Z:\\Java Projects\\Blur\\Picture_Project\\User_Images"); //file name for the junk folder
-		String[]images = folderOfImages.list();
-		for (String image : images) {
-			if (basePic.equals(image)) {
-			} else {
-				File theCurrentFile = new File(folderOfImages.getPath(),image);
-				theCurrentFile.delete();
-			}
-		}
-		
 	}
 
 
